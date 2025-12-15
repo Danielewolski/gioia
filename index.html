@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabelle Dettaglio Alimenti</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        h2 {
+            color: #555;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px 8px;
+            text-align: center;
+            vertical-align: top;
+            font-size: 0.9em;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .macro-header td {
+            background-color: #6c757d;
+            color: white;
+            font-size: 0.8em;
+            padding: 5px 0;
+        }
+        /* Colori per macro-nutrienti */
+        .carb { color: #28a745; font-weight: bold; } /* Verde per CARBOIDRATI */
+        .prot { color: #ffc107; font-weight: bold; } /* Giallo/Oro per PROTEINE */
+        .lip { color: #dc3545; font-weight: bold; } /* Rosso per LIPIDI */
+        .empty { color: #aaa; } /* Grigio per valori non presenti */
+        .alimento-col {
+            text-align: left;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!--
+
+    TDEE (Total Daily Energy Expenditure)
+    TDEE = BMR + NEAT + TEF + EAT
+
+
+    1. BMR (Basal Metabolic Rate)
+    Energia minima per far funzionare il corpo. 
+    ///////////////Uomo
+    BMR = 10 × peso (kg) + 6.25 × altezza (cm) – 5 × età (anni) + 5
+    //////////////Donna
+    BMR = 10 × peso (kg) + 6.25 × altezza (cm) – 5 × età (anni) – 161
+
+
+
+    2. NEAT – Movimento quotidiano non sportivo
+    Questo include:
+    Passi, lavori domestici, spostamenti
+    attività lavorativa (seduta, attiva, manuale, ecc.)
+
+    | Passi al giorno | NEAT stimato  | A chi corrisponde  |
+    | --------------- | ------------- | ------------------ |
+    | 2.000–4.000     | +150 kcal     | persona sedentaria |
+    | 5.000–7.000     | +250–350 kcal | normale attività   |
+    | 8.000–10.000    | +400–550 kcal | attiva             |
+    | 12.000+         | +600–900 kcal | molto attiva       |
+
+
+
+    3. EAT – Energia consumata con l’allenamento
+    Qui consideriamo gli allenamenti veri (pesi, kickboxing, corsa, ecc.).
+
+    | Attività         | Durata | Calorie bruciate |
+    | ---------------- | ------ | ---------------- |
+    | Pesi intensi     | 60 min | 250–400 kcal     |
+    | Kickboxing       | 60 min | 600–900 kcal     |
+    | Corsa 10–12 km/h | 60 min | 700–800 kcal     |
+    | Camminata veloce | 60 min | 200–300 kcal     |
+    | HIIT 20 min      | 20 min | 250–350 kcal     |
+
+
+
+    4. TEF – Termic effect of food
+    Energia necessaria per digerire il cibo.
+    Proteine → 20–30%
+    Carboidrati → 5–10%
+    Grassi → 0–3%
+    TEF = circa il 10% delle calorie totali giornaliere
+    Esempio: se una persona mangia 2.500 kcal, il TEF aggiunge circa 250 kcal.
+
+
+
+    Metodo rapido per calcolo del TDEE.
+
+    TDEE = BMR x fattore attività
+    | Tipo di giornata | Uomo     | Donna      |
+    | ---------------- | -------- | ---------- |
+    | Riposo           | ×1.4–1.5 | ×1.35–1.45 |
+    | Pesi             | ×1.6–1.7 | ×1.55–1.65 |
+    | Kickboxing       | ×1.8–2.1 | ×1.75–2.0  |
+
+
+    ////////////Percentuali normopeso
+    Riposo:
+        Proteine: 30–35%
+        Grassi: 30–35%
+        Carboidrati: 30–40%
+
+    Sala pesi:
+        Proteine: 30%
+        Grassi: 22–27%
+        Carboidrati: 40–50%
+
+    Kickboxing:
+        Proteine: 25–30%
+        Grassi: 18–25%
+        Carboidrati: 50–60%
+
+    
+    ///////////Percentuali deficit (-10%/-15%)
+    Riposo:
+        Proteine: 32-38%
+        Grassi: 28-32%
+        Carboidrati 30–38%
+
+    Sala pesi:
+        Proteine: 30–32%
+        Grassi: 20–25%
+        Carboidrati: 43–50%
+
+    Kickboxing:
+        Proteine: 27–30%
+        Grassi: 15–22%
+        Carboidrati: 48–58%
+
+
+    ///////////Percentuali deficit (-20%/-30%)
+    Riposo:
+        Proteine: 35–40%
+        Grassi: 20–25%
+        Carboidrati: 30–40%
+
+    Sala pesi:
+        Proteine 32–38%
+        Grassi 18–22%
+        Carboidrati 40–50%
+
+    Kickboxing:
+        Proteine 30–35%
+        Grassi 15–20%
+        Carbo 45–55%
+
+
+    Importante la fase di transione (Reverse Dieting)
+    Una volta arrivato a peso target:
+    Aumentare 5% calorie a settimana fino a tornare al TDEE normale
+
+
+
+    Distribuzione dei calorie/macronutrienti:
+    Riposo:
+    | Pasto      | Calorie | Proteine | Carbo | Grassi |
+    | ---------- | ------- | -------- | ----- | ------ |
+    | Colazione  | 20%     | 20%      | 20%   | 25%    |
+    | Spuntino 1 | 10%     | 20%      | 10%   | 10%    |
+    | Pranzo     | 30%     | 20%      | 40%   | 25%    |
+    | Spuntino 2 | 10%     | 20%      | 10%   | 10%    |
+    | Cena       | 30%     | 20%      | 20%   | 30%    |
+
+
+    Sala pesi:
+    | Pasto      | Calorie | Proteine | Carbo | Grassi |
+    | ---------- | ------- | -------- | ----- | ------ |
+    | Colazione  | 25%     | 20%      | 25%   | 20%    |
+    | Spuntino 1 | 10%     | 20%      | 10%   | 10%    |
+    | Pranzo     | 35%     | 20%      | 45%   | 25%    |
+    | Spuntino 2 | 10%     | 20%      | 10%   | 10%    |
+    | Cena       | 20%     | 20%      | 10%   | 20%    |
+
+
+    Kickboxing:
+    | Pasto      | Calorie | Proteine | Carbo  | Grassi |
+    | ---------- | ------- | -------- | ------ | ------ |
+    | Colazione  | 30%     | 20%      | 35%    | 15%    |
+    | Spuntino 1 | 10–15%  | 20%      | 10–15% | 5–10%  |
+    | Pranzo     | 35%     | 20%      | 40%    | 20%    |
+    | Spuntino 2 | 10–15%  | 20%      | 10–15% | 5–10%  |
+    | Cena       | 10–15%  | 20%      | 5–10%  | 20–25% |
+
+
+    -->
+
+    <h1>📊 Dettaglio Alimenti</h1>
+
+    <div id="general-summary">
+        <h2>Riepilogo Calcoli Base</h2>
+        <p>BMR: <span id="bmr-output"></span> kcal</p>
+        <p>TDEE Riposo (LOW): <span id="tdee-riposo-output"></span> kcal</p>
+        <p>TDEE Pesi (HIGH): <span id="tdee-pesi-output"></span> kcal</p>
+        <p>TDEE Kickboxing (K1): <span id="tdee-kickboxing-output"></span> kcal</p>
+    </div>
+
+    <h2 id="tabella1-title">Colazione</h2>
+    <table id="food-table-1">
+        <thead>
+            <tr>
+                <th rowspan="2">ALIMENTO</th>
+                <th colspan="3">HIGH</th>
+                <th colspan="3">K1</th>
+                <th colspan="3">LOW</th>
+                <th rowspan="2">UNITÀ</th>
+            </tr>
+            <tr class="macro-header">
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+
+    <h2 id="tabella2-title">Spuntino</h2>
+    <table id="food-table-2">
+        <thead>
+            <tr>
+                <th rowspan="2">ALIMENTO</th>
+                <th colspan="3">HIGH</th>
+                <th colspan="3">K1</th>
+                <th colspan="3">LOW</th>
+                <th rowspan="2">UNITÀ</th>
+            </tr>
+            <tr class="macro-header">
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+    
+    <h2 id="tabella3-title">Pranzo</h2>
+    <table id="food-table-3">
+        <thead>
+            <tr>
+                <th rowspan="2">ALIMENTO</th>
+                <th colspan="3">HIGH</th>
+                <th colspan="3">K1</th>
+                <th colspan="3">LOW</th>
+                <th rowspan="2">UNITÀ</th>
+            </tr>
+            <tr class="macro-header">
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+
+    <h2 id="tabella4-title">Cena</h2>
+    <table id="food-table-4">
+        <thead>
+            <tr>
+                <th rowspan="2">ALIMENTO</th>
+                <th colspan="3">HIGH</th>
+                <th colspan="3">K1</th>
+                <th colspan="3">LOW</th>
+                <th rowspan="2">UNITÀ</th>
+            </tr>
+            <tr class="macro-header">
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+                <td>CARB</td>
+                <td>PROT</td>
+                <td>LIP</td>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+
+    <script src="calcoli.js" defer></script> 
+    <script>
+        // --- Dati Tabella 1, 2, 3, 4 ---
+        const jsonData1 = [
+            { "alimento": "Frutti", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Gallette", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Pane", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Cocomero", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Cioccolato fondente 99%", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Cioccolato al latte", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Fruttosio", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Zucchero", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Miele", "unità": "CUCCHIAINI", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Marmellata", "unità": "CUCCHIAINI", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Frollini", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Fette biscottate", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Riso soffiato/ Farro soffiato", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Fiocchi d’avena", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Avena decorticata (cotta)", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Latte d’avena / Latte di riso", "unità": "ML", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "FARINA (Generico)", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Whey", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Salmone affumicato / Pesce spada affumicato", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Bresaola", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Fesa di tacchino", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Prosciutto crudo, speck (sgrassato)", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Prosciutto cotto (sgrassato)", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Albume", "unità": "ML", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Uova di gallina intere", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Latte scremato, Latte PS", "unità": "ML", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Ricotta vaccina", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "KEFIR", "unità": "BICCHIERI", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Yogurt greco 0%", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Formaggio spalmabile light, SKYR, ricotta di pecora", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Parmiggiano grana", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Latte di soja", "unità": "ML", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Pinoli", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Pistacchi, arachidi", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Anacardi, mandorle, nocciole", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Noci, noci di macadamia, pecan", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Burro di arachidi", "unità": "CUCCHIAI", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Burro", "unità": "CUCCHIAINI", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+        ];
+
+        const jsonData2 = [
+            { "alimento": "Frutti", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Gallette", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "WASA", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Pane", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Crackers", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Focaccia", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Cocomero", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Cioccolato fondente 99%", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Cioccolato al latte", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Fruttosio", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Zucchero", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Miele", "unità": "CUCCHIAINI", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Latte d’avena / Latte di riso", "unità": "ML", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "AVENA ISTANTANEA", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Whey", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Salmone affumicato / Pesce spada affumicato", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Tonno / Sgombro sgocciolato", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Bresaola", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Fesa di tacchino", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Prosciutto crudo, speck (sgrassato)", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Prosciutto cotto (sgrassato)", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Albume", "unità": "ML", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Latte scremato, Latte PS", "unità": "ML", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Ricotta vaccina", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Yogurt greco 0%", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "KEFIR", "unità": "BICCHIERI", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Formaggio spalmabile light, SKYR, ricotta di pecora", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Fiocchi di latte light", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Caprino, formaggino light", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Feta, crescenza", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Parmiggiano grana", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Sottiletta", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Latte di soja", "unità": "ML", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Pinoli", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Pistacchi, arachidi", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Anacardi, mandorle, nocciole", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Olive nere, olive verdi", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Noci, noci di macadamia, pecan", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Latte di cocco", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Maionese light", "unità": "CUCCHIAINI", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+        ];
+
+        const jsonData3 = [
+            { "alimento": "Frutti", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Patate", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Zucca", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Legumi lessati", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Melone", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Mais", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Gallette", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Wasa", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Pane", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Polenta (cotta)", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Pasta", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Riso", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Farro", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Cous cous", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Orzo mondo", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Orzo perlato", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Gnocchi di patate", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Avena istantanea", "unità": "GR", "HIGH": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "K1": {"valore": 0, "CARB": true, "PROT": false, "LIP": false}, "LOW": {"valore": 0, "CARB": true, "PROT": false, "LIP": false} },
+            { "alimento": "Whey", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Polpo", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Gamberi, gamberetti", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Cozze (Parte edibile)", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Vongole (Parte edibile)", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Salmone (Fresco), sogliola, spigola", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Salmone affumicato, pesce spada affumicato", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Pesce spada, cefalo muggine, palombo", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Branzino, cernia, dentice, merluzzo, nasello, granchio", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Tonno (Fresco), occhiata, orata, sarda, sardine, scorfano", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Tonno sgocciolato, sgombro sgocciolato", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Pollo, tacchino, faraona (Petto)", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Vitello, manzo, agnello, coniglio, maiale (Tagli magri)", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Simmenthal montana", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Bresaola", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Fesa di tacchino", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Prosciutto crudo, speck (sgrassato)", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Prosciutto cotto (sgrassato)", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Albume", "unità": "ML", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Uova di gallina intere", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Ricotta vaccina", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Formaggio spalmabile light, SKYR, ricotta di pecora", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Fiocchi di avena light", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Caprino, formaggino light", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Feta, Crescenza", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Fior di latte, mozzarella light", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Parmigiano grana", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Mozz. di bufala, caciottina fresca", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Emmenthal, groviera", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Germogli di soja", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Quorn", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Tofu", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Tempeh", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Seitan", "unità": "GR", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },            
+            { "alimento": "Hamburger di soja", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Salsiccia di soja, hot dog di soja", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "K1": {"valore": 0, "CARB": false, "PROT": true, "LIP": false}, "LOW": {"valore": 0, "CARB": false, "PROT": true, "LIP": false} },
+            { "alimento": "Avocado", "unità": "CUCCHIAI", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Olio EVO", "unità": "CUCCHIAI", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+            { "alimento": "Olive nere, olive verdi", "unità": "UNITÀ", "HIGH": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "K1": {"valore": 0, "CARB": false, "PROT": false, "LIP": true}, "LOW": {"valore": 0, "CARB": false, "PROT": false, "LIP": true} },
+        ];
+
+        const jsonData4 = JSON.parse(JSON.stringify(jsonData3));
+
+        // Verrà eseguita solo dopo che calcoli.js (caricato con defer) è pronto.
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Calcolo di BMR e TDEE
+            calcolaBMR();
+            calcolaTDEE();
+            
+            // 2. Tabelle
+            populateTableWithCalculations(jsonData1, 'food-table-1', 'Colazione');
+            populateTableWithCalculations(jsonData2, 'food-table-2', 'Spuntino');
+            populateTableWithCalculations(jsonData3, 'food-table-3', 'Pranzo');
+            populateTableWithCalculations(jsonData4, 'food-table-4', 'Cena');
+
+        });
+
+    </script>
+
+</body>
+</html>
