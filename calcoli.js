@@ -1,6 +1,6 @@
 // Dati persona
 var persona = {
-    sesso: "uomo",
+    sesso: "donna",
     eta: 18,
     altezzacm: 163,
     pesokg: 52
@@ -45,7 +45,7 @@ const dietMacroProfiles = {
 };
 
 var BMR;
-var dietMode = "deficitFast";
+var dietMode = "deficitNormal";
 var targetTDEE = {};
 
 // Funzione per limite proteico dinamico basato su giorno e modalità
